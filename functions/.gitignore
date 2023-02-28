@@ -9,3 +9,5 @@ typings/
 node_modules/
 
 .env*
+
+src/config/firebaseConfigJson.ts
