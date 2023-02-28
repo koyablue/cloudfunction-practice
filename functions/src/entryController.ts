@@ -1,4 +1,4 @@
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { db } from './config/firebase'
 
 type EntryType = {
@@ -6,12 +6,12 @@ type EntryType = {
   text: string
 }
 
-type Request = {
+type RequestBody = {
   body: EntryType
   param: { entryId: string }
 }
 
-const addEntry = async (req: Request, res: Response) => {
+const addEntry = async (req: Request<RequestBody>, res: Response) => {
   const { title, text } = req.body
 
   try {

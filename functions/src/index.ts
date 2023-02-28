@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as express from 'express'
+import { addEntry } from './entryController'
 
 // https://www.youtube.com/watch?v=T8SZv6h2WbY
 
@@ -17,6 +18,8 @@ const app = express()
 // exports.app = functions.https.onRequest(app)
 
 app.get('/', (req, res) => res.status(200).send('Hey there!'))
+
+app.post('/entries', addEntry)
 
 const api = functions.https.onRequest(app)
 module.exports = {api}
