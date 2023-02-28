@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import { db } from './config/firebase'
 
 type EntryType = {
@@ -11,7 +11,7 @@ type RequestBody = {
   param: { entryId: string }
 }
 
-const addEntry = async (req: Request<RequestBody>, res: Response) => {
+const addEntry = async (req: ExpressRequest<RequestBody>, res: ExpressResponse) => {
   const { title, text } = req.body
 
   try {
@@ -39,4 +39,13 @@ const addEntry = async (req: Request<RequestBody>, res: Response) => {
   }
 }
 
-export { addEntry }
+const getAllEntries = async (req: ExpressRequest, res: ExpressResponse) => {
+  try {
+    const allEntries = await db.collection('entries').get()
+    return res.status(200).json(allEntries.docs)
+  } catch(error) {
+    return res.status(500).json('error')
+  }
+}
+
+export { addEntry, getAllEntries }
