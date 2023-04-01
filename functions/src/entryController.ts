@@ -22,34 +22,24 @@ type RequestBody = {
   param: { entryId: string }
 }
 
-// const assertEntryType = (data: any): asserts data is EntryType => {
-//   const d = data as Partial<EntryType>
-//   if (!(typeof d?.text === 'string' && typeof d.title === 'string')) {
-//     throw new Error('data is not EntryType type.')
-//   }
-// }
-
-// const entryConverter: FirestoreDataConverter<EntryType> = {
-//   // fromFirestore(ss, op) {
-//   //   const data = ss.data(op);
-//   //   assertUser(data);
-//   //   return data;
-//   // },
-//   // toFirestore: (model: User) => model,
-//   toFirestore(entry: EntryType) {
-//     return { title: entry.title, text: entry.text }
-//   },
-//   fromFirestore(snapshot) {
-//     const data = snapshot.data()
-//     return data.map((d: any) => ({ title: d.title, text: d.text }))
-//   }
-// };
+const entryRef = db.collection('entries').withConverter<EntryType>({
+  toFirestore(entry: EntryType): FirebaseFirestore.DocumentData {
+    return entry;
+  },
+  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryType {
+    const data = snapshot.data();
+    return {
+      title: data.title,
+      text: data.text
+    };
+  }
+});
 
 const addEntry = async (req: ExpressRequest<RequestBody>, res: ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>) => {
   const { title, text } = req.body
 
   try {
-    const entry = db.collection('entries').doc()
+    const entry = entryRef.doc()
     const entryObject = {
       id: entry.id,
       title,
