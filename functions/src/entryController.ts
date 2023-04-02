@@ -17,18 +17,25 @@ type EntryType = {
   text: string
 }
 
+type EntryTypeWithId = {
+  id: string
+  title: string
+  text: string
+}
+
 type RequestBody = {
   body: EntryType
   param: { entryId: string }
 }
 
-const entryRef = db.collection('entries').withConverter<EntryType>({
-  toFirestore(entry: EntryType): FirebaseFirestore.DocumentData {
+const entryRef = db.collection('entries').withConverter<EntryTypeWithId>({
+  toFirestore(entry: EntryTypeWithId): FirebaseFirestore.DocumentData {
     return entry;
   },
-  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryType {
+  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryTypeWithId {
     const data = snapshot.data();
     return {
+      id: data.id,
       title: data.title,
       text: data.text
     };
@@ -46,7 +53,7 @@ const addEntry = async (req: ExpressRequest<RequestBody>, res: ExpressResponse<S
       text
     }
 
-    entry.set(entryObject)
+    await entry.set(entryObject)
 
     res.set(200).send({
       status: 'success',
@@ -54,7 +61,9 @@ const addEntry = async (req: ExpressRequest<RequestBody>, res: ExpressResponse<S
       data: entryObject
     })
   } catch(error) {
-    res.status(500).json({ message: 'error' })
+    if (error instanceof Error) {
+      res.status(500).json(error)
+    }
   }
 }
 
