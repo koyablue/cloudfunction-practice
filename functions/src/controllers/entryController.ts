@@ -1,5 +1,5 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
-import { db } from './config/firebase'
+import { db } from '../config/firebase'
 // import { FirestoreDataConverter } from 'firebase-admin/firestore'
 
 type SuccessResponse<T> = {
@@ -13,11 +13,6 @@ type ErrorResponse = {
 }
 
 type EntryType = {
-  title: string
-  text: string
-}
-
-type EntryTypeWithId = {
   id: string
   title: string
   text: string
@@ -28,11 +23,11 @@ type RequestBody = {
   param: { entryId: string }
 }
 
-const entryRef = db.collection('entries').withConverter<EntryTypeWithId>({
-  toFirestore(entry: EntryTypeWithId): FirebaseFirestore.DocumentData {
+const entryRef = db.collection('entries').withConverter<EntryType>({
+  toFirestore(entry: EntryType): FirebaseFirestore.DocumentData {
     return entry;
   },
-  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryTypeWithId {
+  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryType{
     const data = snapshot.data();
     return {
       id: data.id,
