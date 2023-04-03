@@ -6,6 +6,9 @@ import { Entry } from '../models/Entry'
 
 import { entryConverter } from '../infrastructures/firebase/converters/entryConverter'
 
+import { createEntry } from '../repositories/Entry/entryRepository'
+import { Result } from '../models/Result'
+
 type SuccessResponse<T> = {
   status: 'success',
   message: 'entry added successfully',
@@ -41,31 +44,43 @@ type RequestBody = {
 //   }
 // });
 
-const entryRef = db.collection('entries').withConverter<Entry>(entryConverter);
+// const entryRef = db.collection('entries').withConverter<Entry>(entryConverter);
 
-const addEntry = async (req: ExpressRequest<RequestBody>, res: ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>) => {
+const addEntry = async (req: ExpressRequest<{}, {}, { title: string; text: string; }>, res: ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>) => {
   const { title, text } = req.body
 
-  try {
-    const entry = entryRef.doc()
-    const entryObject = {
-      id: entry.id,
-      title,
-      text
-    }
+  // try {
+  //   // const entry = entryRef.doc()
+  //   // const entryObject = {
+  //   //   id: entry.id,
+  //   //   title,
+  //   //   text
+  //   // }
 
-    await entry.set(entryObject)
+  //   // await entry.set(entryObject)
 
-    res.set(200).send({
-      status: 'success',
-      message: 'entry added successfully',
-      data: entryObject
+  //   res.set(200).send({
+  //     status: 'success',
+  //     message: 'entry added successfully',
+  //     data: entryObject
+  //   })
+  // } catch(error) {
+  //   if (error instanceof Error) {
+  //     res.status(500).json(error)
+  //   }
+  // }
+
+  const createEntryResult = await createEntry({ title, text })
+
+  createEntryResult.isSuccess
+    ? res.set(200).send({
+        status: 'success',
+        message: 'entry added successfully',
+        data: createEntryResult.value
+      })
+    : res.status(500).json({
+      message: 'Failed to save new entry.',
     })
-  } catch(error) {
-    if (error instanceof Error) {
-      res.status(500).json(error)
-    }
-  }
 }
 
 const getAllEntries = async (req: ExpressRequest, res: ExpressResponse) => {
