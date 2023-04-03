@@ -1,23 +1,29 @@
-export class Entry {
-  private id: string
-  private title: string
-  private text: string
+// export class Entry {
+//   private id: string
+//   private title: string
+//   private text: string
 
-  constructor(title: string, text: string, id?: string) {
-    this.id = id || ''
-    this.title = title
-    this.text = text
-  }
+//   constructor(title: string, text: string, id?: string) {
+//     this.id = id || ''
+//     this.title = title
+//     this.text = text
+//   }
 
-  getId() {
-    return this.id
-  }
+//   getId() {
+//     return this.id
+//   }
 
-  getTitle() {
-    return this.title
-  }
+//   getTitle() {
+//     return this.title
+//   }
 
-  getText() {
-    return this.text
-  }
+//   getText() {
+//     return this.text
+//   }
+// }
+
+export type Entry = {
+  id: string
+  title: string
+  text: string
 }
