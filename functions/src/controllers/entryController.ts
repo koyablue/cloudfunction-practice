@@ -2,6 +2,8 @@ import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import { db } from '../config/firebase'
 // import { FirestoreDataConverter } from 'firebase-admin/firestore'
 
+import { Entry } from '../models/Entry'
+
 type SuccessResponse<T> = {
   status: 'success',
   message: 'entry added successfully',
@@ -23,37 +25,61 @@ type RequestBody = {
   param: { entryId: string }
 }
 
-const entryRef = db.collection('entries').withConverter<EntryType>({
-  toFirestore(entry: EntryType): FirebaseFirestore.DocumentData {
-    return entry;
-  },
-  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryType{
-    const data = snapshot.data();
-    return {
-      id: data.id,
-      title: data.title,
-      text: data.text
-    };
-  }
-});
+const entryFromFirestore = (
+  snapshot: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+): Entry => {
+  const data = snapshot.data();
+  return new Entry(data.id, data.title, data.text);
+}
+
+// Define a function to convert a MyData object to a Firestore document
+const entryToFirestore = (entry: Entry): FirebaseFirestore.DocumentData => {
+  return {
+    id: entry.getId(),
+    title: entry.getTitle(),
+    text: entry.getText(),
+  };
+}
+
+const converter = {
+  toFirestore: entryToFirestore,
+  fromFirestore: entryFromFirestore,
+}
+
+// const entryRef = db.collection('entries').withConverter<EntryType>({
+//   toFirestore(entry: EntryType): FirebaseFirestore.DocumentData {
+//     return entry;
+//   },
+//   fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryType{
+//     const data = snapshot.data();
+//     return {
+//       id: data.id,
+//       title: data.title,
+//       text: data.text
+//     };
+//   }
+// });
+
+const entryRef = db.collection('entries').withConverter<Entry>(converter);
 
 const addEntry = async (req: ExpressRequest<RequestBody>, res: ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>) => {
   const { title, text } = req.body
 
   try {
     const entry = entryRef.doc()
-    const entryObject = {
-      id: entry.id,
-      title,
-      text
-    }
+    const entryObject = new Entry(entry.id, title, text)
+    // {
+    //   id: entry.id,
+    //   title,
+    //   text
+    // }
 
     await entry.set(entryObject)
 
     res.set(200).send({
       status: 'success',
       message: 'entry added successfully',
-      data: entryObject
+      data: { id: entryObject.getId(), title: entryObject.getTitle(), text: entryObject.getText() }
     })
   } catch(error) {
     if (error instanceof Error) {
