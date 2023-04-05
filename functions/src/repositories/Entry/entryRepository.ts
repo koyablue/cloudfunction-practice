@@ -25,6 +25,18 @@ const createEntry = async ({ title, text }: CreateEntryRequest): Promise<Result<
   }
 }
 
+const getEntries = async (): Promise<Result<Entry[], unknown>> => {
+  try {
+    const querySnapshot = await entryRef.get()
+    const allEntries = querySnapshot.docs.map(doc => doc.data())
+
+    return newSuccess(allEntries)
+  } catch(error) {
+    return newFailure(error)
+  }
+}
+
 export {
-  createEntry
+  createEntry,
+  getEntries,
 }

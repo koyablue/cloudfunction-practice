@@ -6,14 +6,10 @@ import { Entry } from '../models/Entry'
 
 import { entryConverter } from '../infrastructures/firebase/converters/entryConverter'
 
-import { createEntry } from '../repositories/Entry/entryRepository'
+import { createEntry, getEntries } from '../repositories/Entry/entryRepository'
 import { Result } from '../models/Result'
 
-type SuccessResponse<T> = {
-  status: 'success',
-  message: 'entry added successfully',
-  data?: T
-}
+import { SuccessResponse, newSuccessResponse } from '../models/SuccessResponse'
 
 type ErrorResponse = {
   message: string
@@ -36,28 +32,18 @@ const addEntry = async (req: ExpressRequest<{}, {}, { title: string; text: strin
   const createEntryResult = await createEntry({ title, text })
 
   createEntryResult.isSuccess
-    ? res.set(200).send({
-        status: 'success',
-        message: 'entry added successfully',
-        data: createEntryResult.value
-      })
+    ? res.set(200).send(newSuccessResponse(createEntryResult.value))
     : res.status(500).json({
       message: 'Failed to save new entry.',
     })
 }
 
-const getAllEntries = async (req: ExpressRequest, res: ExpressResponse) => {
-  try {
-    const allEntries: EntryType[] =[]
+const getAllEntries = async (req: ExpressRequest, res: ExpressResponse<SuccessResponse<EntryType[]> | ErrorResponse>) => {
+  const getAllEntriesResult = await getEntries()
 
-    const querySnapshot = await db.collection('entries').get()
-
-    querySnapshot.forEach(doc => allEntries.push(doc.data() as EntryType))
-
-    return res.status(200).json(allEntries)
-  } catch(error) {
-    return res.status(500).json('error')
-  }
+  getAllEntriesResult.isSuccess
+  ? res.set(200).send(newSuccessResponse(getAllEntriesResult.value))
+  : res.status(500).json({ message: 'Failed to get all entries.' })
 }
 
 const updateEntry = async (req: ExpressRequest<{ entryId: string }, {}, EntryType>, res: ExpressResponse) => {
