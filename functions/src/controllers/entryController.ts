@@ -30,45 +30,8 @@ type RequestBody = {
   param: { entryId: string }
 }
 
-// const entryRef = db.collection('entries').withConverter<EntryType>({
-//   toFirestore(entry: EntryType): FirebaseFirestore.DocumentData {
-//     return entry;
-//   },
-//   fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): EntryType{
-//     const data = snapshot.data();
-//     return {
-//       id: data.id,
-//       title: data.title,
-//       text: data.text
-//     };
-//   }
-// });
-
-// const entryRef = db.collection('entries').withConverter<Entry>(entryConverter);
-
 const addEntry = async (req: ExpressRequest<{}, {}, { title: string; text: string; }>, res: ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>) => {
   const { title, text } = req.body
-
-  // try {
-  //   // const entry = entryRef.doc()
-  //   // const entryObject = {
-  //   //   id: entry.id,
-  //   //   title,
-  //   //   text
-  //   // }
-
-  //   // await entry.set(entryObject)
-
-  //   res.set(200).send({
-  //     status: 'success',
-  //     message: 'entry added successfully',
-  //     data: entryObject
-  //   })
-  // } catch(error) {
-  //   if (error instanceof Error) {
-  //     res.status(500).json(error)
-  //   }
-  // }
 
   const createEntryResult = await createEntry({ title, text })
 
@@ -85,11 +48,7 @@ const addEntry = async (req: ExpressRequest<{}, {}, { title: string; text: strin
 
 const getAllEntries = async (req: ExpressRequest, res: ExpressResponse) => {
   try {
-
-    // const allEntries = await db.collection('entries').get()
     const allEntries: EntryType[] =[]
-
-    // const querySnapshot = await (await db.collection('entries').withConverter(entryConverter).get()).docs
 
     const querySnapshot = await db.collection('entries').get()
 
