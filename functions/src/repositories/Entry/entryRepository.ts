@@ -1,4 +1,4 @@
-import { CreateEntitySuccessResponse, CreateEntryRequest } from './types'
+import { CreateEntitySuccessResponse, CreateEntryRequest, UpdateEntryRequest } from './types'
 import { Result, newFailure, newSuccess } from '../../models/Result'
 import { ErrorResponse } from '../../models/ErrorResponse'
 import { db } from '../../config/firebase'
@@ -36,9 +36,28 @@ const getEntries = async (): Promise<Result<Entry[], unknown>> => {
   }
 }
 
-// const updateEntry
+const updateEntry = async ({ id, title, text }: UpdateEntryRequest): Promise<Result<Entry | unknown>> => {
+  // TODO: update
+
+  try {
+    const entry = entryRef.doc(id)
+
+    // FIXME: Type?
+    const currentData = (await entry.get()).data()
+
+    const entryObject = {
+      title: title || currentData.title,
+      text: text || currentData.text,
+    }
+
+    // TODO: Result
+  } catch(error) {
+    // TODO: Result
+  }
+}
 
 export {
   createEntry,
   getEntries,
+  updateEntry,
 }
