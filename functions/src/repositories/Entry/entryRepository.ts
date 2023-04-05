@@ -36,6 +36,8 @@ const getEntries = async (): Promise<Result<Entry[], unknown>> => {
   }
 }
 
+// const updateEntry
+
 export {
   createEntry,
   getEntries,
