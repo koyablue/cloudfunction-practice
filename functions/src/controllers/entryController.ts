@@ -18,6 +18,13 @@ type EntryType = {
   text: string
 }
 
+/**
+ * Create new entry
+ *
+ * @param {ExpressRequest<{}, {}, { title: string; text: string; }>} req
+ * @param {(ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>)} res
+ * @return {*}
+ */
 const create = async (req: ExpressRequest<{}, {}, { title: string; text: string; }>, res: ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>) => {
   const createEntryRequest = req.body
   const createEntryResult = await createEntryUseCase(createEntryRequest)
@@ -29,6 +36,13 @@ const create = async (req: ExpressRequest<{}, {}, { title: string; text: string;
     })
 }
 
+/**
+ * All entries
+ *
+ * @param {ExpressRequest} req
+ * @param {(ExpressResponse<SuccessResponse<EntryType[]> | ErrorResponse>)} res
+ * @return {*}
+ */
 const index = async (req: ExpressRequest, res: ExpressResponse<SuccessResponse<EntryType[]> | ErrorResponse>) => {
   const getAllEntriesResult = await getAllEntriesUseCase()
 
@@ -37,6 +51,13 @@ const index = async (req: ExpressRequest, res: ExpressResponse<SuccessResponse<E
   : res.status(500).json({ message: 'Failed to get all entries.' })
 }
 
+/**
+ * Update entry
+ *
+ * @param {ExpressRequest<{ entryId: string }, {}, EntryType>} req
+ * @param {ExpressResponse} res
+ * @return {*}
+ */
 const update = async (req: ExpressRequest<{ entryId: string }, {}, EntryType>, res: ExpressResponse) => {
   const { body, params } = req
 
@@ -48,6 +69,13 @@ const update = async (req: ExpressRequest<{ entryId: string }, {}, EntryType>, r
       : res.status(500).json({ message: 'Failed to update the entry.' })
 }
 
+/**
+ * Delete entry
+ *
+ * @param {ExpressRequest<{ entryId: string }>} req
+ * @param {ExpressResponse} res
+ * @return {*}
+ */
 const deleteEntry = async (req: ExpressRequest<{ entryId: string }>, res: ExpressResponse) => {
   const { entryId } = req.params
 
