@@ -1,49 +1,27 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
-import { db } from '../config/firebase'
-// import { FirestoreDataConverter } from 'firebase-admin/firestore'
 
+import { db } from '../config/firebase'
+
+import { Entry } from '../models/Entry'
 import { SuccessResponse, newSuccessResponse } from '../models/SuccessResponse'
 
 import { getAllEntriesUseCase } from '../useCases/Entry/getAllEntriesUseCase'
 import { createEntryUseCase } from '../useCases/Entry/createEntryUseCase'
 import { updateEntryUseCase } from '../useCases/Entry/updateEntryUseCase'
+import { deleteEntryUseCase } from '../useCases/Entry/deleteEntryUseCase'
 
 type ErrorResponse = {
   message: string
-}
-
-type EntryType = {
-  id: string
-  title: string
-  text: string
-}
-
-/**
- * Create new entry
- *
- * @param {ExpressRequest<{}, {}, { title: string; text: string; }>} req
- * @param {(ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>)} res
- * @return {*}
- */
-const create = async (req: ExpressRequest<{}, {}, { title: string; text: string; }>, res: ExpressResponse<SuccessResponse<EntryType> | ErrorResponse>) => {
-  const createEntryRequest = req.body
-  const createEntryResult = await createEntryUseCase(createEntryRequest)
-
-  return createEntryResult.isSuccess
-    ? res.set(200).send(newSuccessResponse(createEntryResult.value))
-    : res.status(500).json({
-      message: 'Failed to save new entry.',
-    })
 }
 
 /**
  * All entries
  *
  * @param {ExpressRequest} req
- * @param {(ExpressResponse<SuccessResponse<EntryType[]> | ErrorResponse>)} res
+ * @param {(ExpressResponse<SuccessResponse<Entry[]> | ErrorResponse>)} res
  * @return {*}
  */
-const index = async (req: ExpressRequest, res: ExpressResponse<SuccessResponse<EntryType[]> | ErrorResponse>) => {
+const index = async (req: ExpressRequest, res: ExpressResponse<SuccessResponse<Entry[]> | ErrorResponse>) => {
   const getAllEntriesResult = await getAllEntriesUseCase()
 
   return getAllEntriesResult.isSuccess
@@ -52,13 +30,31 @@ const index = async (req: ExpressRequest, res: ExpressResponse<SuccessResponse<E
 }
 
 /**
+ * Create new entry
+ *
+ * @param {ExpressRequest<{}, {}, { title: string; text: string; }>} req
+ * @param {(ExpressResponse<SuccessResponse<Entry> | ErrorResponse>)} res
+ * @return {*}
+ */
+const create = async (req: ExpressRequest<{}, {}, { title: string; text: string; }>, res: ExpressResponse<SuccessResponse<Entry> | ErrorResponse>) => {
+  const createEntryRequest = req.body
+  const createEntryResult = await createEntryUseCase(createEntryRequest)
+
+  return createEntryResult.isSuccess
+    ? res.set(201).send(newSuccessResponse(createEntryResult.value))
+    : res.status(500).json({
+      message: 'Failed to save new entry.',
+    })
+}
+
+/**
  * Update entry
  *
- * @param {ExpressRequest<{ entryId: string }, {}, EntryType>} req
+ * @param {ExpressRequest<{ entryId: string }, {}, Entry>} req
  * @param {ExpressResponse} res
  * @return {*}
  */
-const update = async (req: ExpressRequest<{ entryId: string }, {}, EntryType>, res: ExpressResponse) => {
+const update = async (req: ExpressRequest<{ entryId: string }, {}, Entry>, res: ExpressResponse) => {
   const { body, params } = req
 
   const updateResult = await updateEntryUseCase(
@@ -78,6 +74,11 @@ const update = async (req: ExpressRequest<{ entryId: string }, {}, EntryType>, r
  */
 const deleteEntry = async (req: ExpressRequest<{ entryId: string }>, res: ExpressResponse) => {
   const { entryId } = req.params
+  const deleteEntryResult = await deleteEntryUseCase(entryId)
+
+  return deleteEntryResult.isSuccess
+    ? res.status(204).json(newSuccessResponse(deleteEntryResult.value))
+    : res.status(500).json({ message: 'Failed to delete the entry.' })
 
   try {
     const entry = db.collection('entries').doc(entryId)
