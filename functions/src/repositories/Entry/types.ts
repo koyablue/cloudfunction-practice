@@ -12,8 +12,13 @@ export type CreateEntitySuccessResponse = {
 }
 
 // DTO
-export type UpdateEntryRequest = {
+export type UpdateEntryUseCaseRequest = {
   id: string
   title: string
   text: string
+}
+
+// DTO
+export type UpdateEntryRepositoryRequest = {
+  entry: Entry
 }

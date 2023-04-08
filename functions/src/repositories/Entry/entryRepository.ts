@@ -1,6 +1,5 @@
-import { CreateEntitySuccessResponse, CreateEntryRequest, UpdateEntryRequest } from './types'
+import { CreateEntryRequest, UpdateEntryRepositoryRequest } from './types'
 import { Result, newFailure, newSuccess } from '../../models/Result'
-import { ErrorResponse } from '../../models/ErrorResponse'
 import { db } from '../../config/firebase'
 import { Entry } from '../../models/Entry'
 import { entryConverter } from '../../infrastructures/firebase/converters/entryConverter'
@@ -36,27 +35,28 @@ const getEntries = async (): Promise<Result<Entry[], unknown>> => {
   }
 }
 
-const updateEntry = async ({ id, title, text }: UpdateEntryRequest): Promise<Result<Entry | unknown>> => {
-  // TODO: update
-
+const getEntryById = async (id: string): Promise<Result<Entry, unknown>> => {
   try {
-    const entry = entryRef.doc(id)
-
-    // FIXME: Type?
-    const currentData = (await entry.get()).data()
-
-    const entryObject = {
-      title: title || currentData.title,
-      text: text || currentData.text,
-    }
-
-    // TODO: Result
+    const entry = (await entryRef.doc(id).get()).data() as Entry || { }
+    return newSuccess(entry)
   } catch(error) {
-    // TODO: Result
+    return newFailure(error)
+  }
+}
+
+const updateEntry = async ({ entry }: UpdateEntryRepositoryRequest): Promise<Result<Entry, unknown>> => {
+  try {
+    const ref = entryRef.doc(entry.id)
+    await ref.set(entry)
+
+    return newSuccess(entry)
+  } catch(error) {
+    return  newFailure(error)
   }
 }
 
 export {
+  getEntryById,
   createEntry,
   getEntries,
   updateEntry,
