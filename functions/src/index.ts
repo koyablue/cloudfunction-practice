@@ -7,17 +7,12 @@ import { create, deleteEntry, index, update } from './controllers/entryControlle
 // initialize express
 const app = express()
 
-// Start writing functions
+// NOTE: Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// })
+// response check
+// app.get('/', (req, res) => res.status(200).send('Hey there!'))
 
-// exports.app = functions.https.onRequest(app)
-
-app.get('/', (req, res) => res.status(200).send('Hey there!'))
 app.post('/entries', create)
 app.get('/entries', index)
 app.patch('/entries/:entryId', update)

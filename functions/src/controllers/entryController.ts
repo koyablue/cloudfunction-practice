@@ -1,7 +1,5 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 
-import { db } from '../config/firebase'
-
 import { Entry } from '../models/Entry'
 import { SuccessResponse, newSuccessResponse } from '../models/SuccessResponse'
 
@@ -79,19 +77,6 @@ const deleteEntry = async (req: ExpressRequest<{ entryId: string }>, res: Expres
   return deleteEntryResult.isSuccess
     ? res.status(204).json(newSuccessResponse(deleteEntryResult.value))
     : res.status(500).json({ message: 'Failed to delete the entry.' })
-
-  try {
-    const entry = db.collection('entries').doc(entryId)
-
-    await entry.delete()
-
-    return res.status(200).json({
-      status: 'success',
-      message: 'entry deleted successfully'
-    })
-  } catch(error) {
-    return res.status(500).json('error')
-  }
 }
 
 export { create, index, update, deleteEntry }
